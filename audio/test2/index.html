@@ -1,94 +1,96 @@
-<h1>Audio Test 2</h1>
+<fieldset>
+	<legend><h1>Audio Test 2</h1></legend>
 
 <script>
-	
-var ctx = new webkitAudioContext();
 
-function Sound(ctx, url, fn)
-{
-	this.ctx = ctx;
-	this.xhr = new XMLHttpRequest();
-	this.xhr.open('GET', url, true);
-	this.xhr.responseType = 'arraybuffer';
-	this.events = {};
+	var ctx = new webkitAudioContext();
 
-	var self = this;
-	this.xhr.onload = function() 
+	function Sound(ctx, url, fn)
 	{
-		
-		// var self2 = self;
-		self.ctx.decodeAudioData(this.response, function(buffer) {
-			self.buffer = buffer;
-			self.play();
-		}, function(e){
-			console.log(e);
-		});
+		this.ctx = ctx;
+		this.xhr = new XMLHttpRequest();
+		this.xhr.open('GET', url, true);
+		this.xhr.responseType = 'arraybuffer';
+		this.events = {};
+
+		var self = this;
+		this.xhr.onload = function() 
+		{
+
+			// var self2 = self;
+			self.ctx.decodeAudioData(this.response, function(buffer) {
+				self.buffer = buffer;
+				self.play();
+			}, function(e){
+				console.log(e);
+			});
+		}
 	}
-}
 
-Sound.prototype.xhr = null;
-Sound.prototype.ctx = null;
-Sound.prototype.buffer = null;
-Sound.prototype.loaded = false;
-Sound.prototype.state = null;
-Sound.prototype.events = null;
-Sound.prototype.addEvent = function(name,fn){
-	if(!this.events[name]){
-		this.events[name] = [];
+	Sound.prototype.xhr = null;
+	Sound.prototype.ctx = null;
+	Sound.prototype.buffer = null;
+	Sound.prototype.loaded = false;
+	Sound.prototype.state = null;
+	Sound.prototype.events = null;
+	Sound.prototype.addEvent = function(name,fn){
+		if(!this.events[name]){
+			this.events[name] = [];
+		}
+
+		this.events[name].push(fn);
+	};
+
+	Sound.prototype.load = function(){
+		this.xhr.send();
 	}
-	
-	this.events[name].push(fn);
-};
 
-Sound.prototype.load = function(){
-	this.xhr.send();
-}
+	Sound.prototype.changeFrequency = function(v){
+		console.log(this.filter);
+		this.filter.frequency.value = 5000 * v;
+	}
 
-Sound.prototype.changeFrequency = function(v){
-	console.log(this.filter);
-	this.filter.frequency.value = 5000 * v;
-}
+	Sound.prototype.changeQuality = function(v){
+		this.filter.Q.value = 30 * v;
+	}
 
-Sound.prototype.changeQuality = function(v){
-	this.filter.Q.value = 30 * v;
-}
+	Sound.prototype.play = function(){
+		var source = this.ctx.createBufferSource();
+		var filter = this.ctx.createBiquadFilter();
 
-Sound.prototype.play = function(){
-	var source = this.ctx.createBufferSource();
-	var filter = this.ctx.createBiquadFilter();
-	
-	filter.type = 0; // LOWPASS
-	filter.frequency.value = 5000;
-	
-	// Connect source to filter, filter to destination.
-	source.connect(filter);
-	filter.connect(this.ctx.destination);
-	
-	// Play!
-	console.log(this.buffer);
-	source.buffer = this.buffer;
-	// source.connect(this.ctx.destination); 
-	source.noteOn(0);
-	
+		filter.type = 0; // LOWPASS
+		filter.frequency.value = 5000;
 
-	console.log('play');
+		// Connect source to filter, filter to destination.
+		source.connect(filter);
+		filter.connect(this.ctx.destination);
 
-	this.source = source;
-	this.filter = filter;
-	
-	console.log( this.ctx.sampleRate );
-}
+		// Play!
+		console.log(this.buffer);
+		source.buffer = this.buffer;
+		// source.connect(this.ctx.destination); 
+		source.noteOn(0);
 
-var s = new Sound(ctx, '../BigBillBroonzy-BabyPleaseDontGo1.mp3', function(){ console.log('onComplete'); });
 
-function playSound(){
-	
-	s.load();
-}
+		console.log('play');
 
-</script>
+		this.source = source;
+		this.filter = filter;
 
-<button onclick="playSound()">Play BigBillBroonzy-BabyPleaseDontGo</button>
-<br />
-Frequency filter: <input type="range"  min="0" max="100" onchange="s.changeFrequency(this.value/100);" />
-Quality filter: <input type="range"  min="0" max="100" onchange="s.changeQuality(this.value/100);" />
+		console.log( this.ctx.sampleRate );
+	}
+
+	var s = new Sound(ctx, '../BigBillBroonzy-BabyPleaseDontGo1.mp3', function(){ console.log('onComplete'); });
+
+	function playSound(){
+
+		s.load();
+	}
+
+	</script>
+
+	<button onclick="playSound()">Play BigBillBroonzy-BabyPleaseDontGo</button>
+	<br />
+	Frequency filter: <input type="range"  min="0" max="100" onchange="s.changeFrequency(this.value/100);" />
+	Quality filter: <input type="range"  min="0" max="100" onchange="s.changeQuality(this.value/100);" />
+</fieldset>
