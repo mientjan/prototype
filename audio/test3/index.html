@@ -1,0 +1,53 @@
+<script src="AC.js"></script>
+<script src="AC/BiquadFilterNode.js"></script>
+<script src="AC/Speaker.js"></script>
+<script src="AC/Sound.js"></script>
+
+<fieldset>
+	<legend><h1>Audio Test 3</h1></legend>
+	<p>
+		created a set classes that for some quick prototyping. Still don't know wtf gain really does.
+	</p>
+<script>
+	
+
+new AC();
+
+var sound = new AC.Sound('../BigBillBroonzy-BabyPleaseDontGo1.mp3', function(){ console.log('onComplete'); });
+var speakers = new AC.Speaker();
+var filter = new AC.BiquadFilterNode( AC.BiquadFilterNode.LOWPASS );
+var lastNode = sound;
+sound.connect(speakers);
+
+var BiquadFilterNodeInterFace = function(){
+	var el = document.getElementById('ul-list');
+	
+	this.o = new AC.BiquadFilterNode(AC.BiquadFilterNode.LOWPASS);
+	lastNode.disconnect();
+	lastNode.connect(this.o);
+	this.o.connect(speakers);
+	lastNode = this.o;
+	
+	
+	var div = document.createElement('div');
+	div.scope = this;
+	div.innerHTML = ''
+		+'Frequency: <input type="range"  min="0" max="100" onchange="this.parentNode.scope.o.setFrequency(this.value, true);" /><br />'
+		+'Quality: <input type="range"  min="0" max="100" onchange="this.parentNode.scope.o.setQuality(this.value, true);" /><br />'
+		+'Gain: <input type="range"  min="0" max="100" onchange="this.parentNode.scope.o.setGain(this.value, true);" />';
+	
+	el.appendChild(div);
+}
+
+</script>
+
+<button onclick="sound.play()">Play BigBillBroonzy-BabyPleaseDontGo</button>
+
+<fieldset>
+	<legend><button onclick="new BiquadFilterNodeInterFace();">add BiquadFilterNode</button></legend>
+	<ul id="ul-list">
+		
+	</ul>
+</fieldset>
+
+</fieldset>
