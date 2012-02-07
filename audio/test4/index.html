@@ -1,0 +1,79 @@
+<script src="AC.js"></script>
+<script src="AC/BiquadFilterNode.js"></script>
+<script src="AC/Speaker.js"></script>
+<script src="AC/Sound.js"></script>
+
+<fieldset>
+	<legend><h1>Audio Test 4</h1></legend>
+	<p>
+		Audio analizer.
+	</p>
+<script>
+
+var freqByteData,
+	timeByteData,
+	timeByteData,
+	analyser,
+	centerX,
+	centerY,
+	averageLevel,
+	level;
+
+var a = new AC();
+
+var sound = new AC.Sound('../BigBillBroonzy-BabyPleaseDontGo1.mp3', function(){ console.log('onComplete'); });
+var speakers = new AC.Speaker();
+sound.connect(speakers);
+
+analyser = a.ctx.createAnalyser();
+var processor = a.ctx.createJavaScriptNode(2048, 1, 1);
+processor.onaudioprocess = function(e){
+	
+	
+	ctx.putImageData(
+		ctx.getImageData(0,0,600,400),
+		-1,0
+	);
+	ctx.clearRect(599,0,1,400);
+	
+	//analyser.smoothingTimeConstant = 0.1;
+	analyser.getByteFrequencyData(freqByteData);
+	analyser.getByteTimeDomainData(timeByteData);
+	
+	var sum = 0;
+	for(var i = 0, l = freqByteData.length; i < l; ++i) {
+		sum += freqByteData[i];
+	}
+	
+	averageLevel = sum / l;
+	level = Math.round(sum / 200);
+
+	ctx.fillStyle = "rgb("+Math.round(sum*Math.random())%255+","+Math.round(sum*Math.random())%255+","+Math.round(sum*Math.random())%255+")";  
+	// ctx.fillStyle = "rgb(0,0,0)";  
+	
+	centerX = (600 - level)/2;
+	centerY = (400 - level)/2;
+	
+	ctx.fillRect (599, centerY, 1, level);  
+	
+	
+}
+
+sound.connect({'o':analyser});
+analyser.connect(processor);
+processor.connect(speakers.o);
+
+freqByteData = new Uint8Array(analyser.frequencyBinCount);
+timeByteData = new Uint8Array(analyser.frequencyBinCount);
+
+</script>
+
+<button onclick="sound.play()">Play BigBillBroonzy-BabyPleaseDontGo</button>
+
+<canvas id="test" width="600" height="400"></canvas>
+
+<script>
+	var canvas = document.getElementById('test');
+	var ctx = canvas.getContext('2d'); 
+</script>
+</fieldset>
