@@ -13,7 +13,7 @@
 	<fieldset>
 		<legend><h1>Audio Test 4</h1></legend>
 		<p>
-			Audio analizer.
+			Audio Visual Analyzer. (only works in newest version of google chrome )
 		</p>
 	<script>
 
@@ -24,7 +24,8 @@
 		centerX,
 		centerY,
 		averageLevel,
-		level;
+		level,
+		sum;
 
 	var a = new AC();
 
@@ -47,7 +48,7 @@
 		analyser.getByteFrequencyData(freqByteData);
 		analyser.getByteTimeDomainData(timeByteData);
 
-		var sum = 0;
+		sum = 0;
 		for(var i = 0, l = freqByteData.length; i < l; ++i) {
 			sum += freqByteData[i];
 		}
