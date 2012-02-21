@@ -1,6 +1,6 @@
 <html prefix="og: http://ogp.me/ns#">
 <head>
-<title>Audio Test 4</title>
+<title>Audio Test 5</title>
 <meta property="og:image" content="http://mientjan.github.com/Prototype/audio/test5.png" />
 
 <script src="../build/mootools.js"></script>
@@ -23,11 +23,16 @@
 	<fieldset>
 		<legend><h1>Audio Test 5</h1></legend>
 		<p>
-			
+			WEBGL with THREE, and the new audio processor. <strong>Works only in the newest Chrome</strong>
 		</p>
+		
+		<div id="container"></div>
+		
+		<button onclick="analyser.connect(processor);
+		processor.connect(speakers.o); sound.play(); console.log(timeByteData);">Play doctor_p-big_boss.mp3</button>
 	</fieldset>
 	
-	<div id="container"></div>
+	
 
 	<script>
 		
@@ -200,7 +205,6 @@
 		console.log(sound);
 	</script>
 	
-	<button onclick="analyser.connect(processor);
-		processor.connect(speakers.o); sound.play(); console.log(timeByteData);">Play doctor_p-big_boss.mp3</button>
+	
 </body>
 </html>
