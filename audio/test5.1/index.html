@@ -1,0 +1,214 @@
+<html prefix="og: http://ogp.me/ns#">
+<head>
+<title>Audio Test 5</title>
+<meta property="og:image" content="http://mientjan.github.com/Prototype/audio/test5.png" />
+
+<script src="../build/mootools.js"></script>
+<script src="../build/Three.js"></script>
+
+<script src="../test5/AC.js"></script>
+<script src="../test5/AC/BiquadFilterNode.js"></script>
+<script src="../test5/AC/Speaker.js"></script>
+<script src="../test5/AC/Sound.js"></script>
+
+
+<script>
+	requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||  
+		window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+</script>
+
+
+</head>
+<body>
+	<fieldset>
+		<legend><h1>Audio Test 5.1</h1></legend>
+		<p>
+			WEBGL with THREE, and the new audio processor. <strong>Works only in the newest Chrome</strong><br />
+			</br>
+			
+			This has a better spreak on 
+		</p>
+		
+		<div id="container"></div>
+		
+		<button onclick="analyser.connect(processor);
+		processor.connect(speakers.o); sound.play(); console.log(timeByteData);">Play doctor_p-big_boss.mp3</button>
+	</fieldset>
+	
+	
+
+	<script>
+		
+		// scene size
+		var width = 600,
+			height = 800,
+			
+			// camera attr
+			view_angle = 45,
+			aspect = width / height,
+			near = 0.1,
+			far = 10000;
+		
+		var container = $('container');
+		var renderer = new THREE.WebGLRenderer();
+		var camera = new THREE.PerspectiveCamera(
+			view_angle, aspect, near, far );
+		
+		console.log( camera );
+		
+		var scene = new THREE.Scene();
+		camera.position.z = 300;
+		renderer.setSize(width, height);
+		container.appendChild(renderer.domElement);
+		
+		console.log( camera );
+		
+		// de stoff
+		var sphereMaterial = new THREE.MeshLambertMaterial({ color: 0xCC0000 });
+		
+		var radius = 30,
+			segments = 32,
+			rings = 32;
+		
+		var geo1 = new THREE.SphereGeometry(radius, segments, rings);
+		var geo2 = new THREE.SphereGeometry(radius, segments, rings);
+		
+		var sphere = new THREE.Mesh(
+			geo2, 
+			sphereMaterial
+		);
+		
+
+		sphere.geometry.dynamic = true;
+		sphere.geometry.__dirtyVertices = true;
+		
+		scene.add(sphere);
+		
+		// licht
+		var pointLight = new THREE.PointLight(0xFFFFFF);
+		pointLight.position.x = 10;
+		pointLight.position.y = 50;
+		pointLight.position.z = 130;
+		
+		scene.add(pointLight);
+		
+		var rnd = 0.0;
+		/*function render(time){
+			
+			sphere.scale.x = 2 * Math.random();
+			sphere.scale.y = 2 * Math.random();
+			// sphere.scale.z = 1 * Math.random();
+			sphere.geometry.dynamic = true;
+			sphere.geometry.__dirtyVertices = true;
+			
+			for( var i = 0, l = sphere.geometry.vertices.length; i < l; ++i){
+				sphere.geometry.vertices[i].position.x = geo1.vertices[i].position.x * Math.random();
+				sphere.geometry.vertices[i].position.y = geo1.vertices[i].position.y * Math.random();
+				sphere.geometry.vertices[i].position.z = geo1.vertices[i].position.z * Math.random();
+			}		
+			
+			renderer.render( scene, camera);
+			// requestAnimationFrame(render);
+		}*/
+		
+		// render();
+		
+	</script>
+	
+	<script>
+		var freqByteData,
+		timeByteData,
+		timeByteData,
+		analyser,
+		centerX,
+		centerY,
+		averageLevel,
+		level,
+		sum;
+
+
+
+		var a = new AC();
+
+		var sound = new AC.Sound('../doctor_p-big_boss.mp3', function(){ console.log('onComplete'); });
+		var speakers = new AC.Speaker();
+		sound.connect(speakers);
+
+		analyser = a.ctx.createAnalyser();
+		var processor = a.ctx.createJavaScriptNode(1024, 1, 1);
+		
+		var oneTime = true;
+		processor.onaudioprocess = function(e){
+
+
+			//analyser.smoothingTimeConstant = 0.1;
+			analyser.getByteFrequencyData(freqByteData);
+			analyser.getByteTimeDomainData(timeByteData);
+
+			sum = 0;
+			for(var i = 0, l = freqByteData.length; i < l; ++i) {
+				sum += freqByteData[i];
+			}
+
+			averageLevel = sum / l;
+			// console.log(sum, averageLevel);
+			level = averageLevel/100;
+
+			// ctx.fillStyle = "rgb("+Math.round(sum*Math.random())%255+","+Math.round(sum*Math.random())%255+","+Math.round(sum*Math.random())%255+")";  
+			// ctx.fillStyle = "rgb(0,0,0)";  
+
+			centerX = (600 - level)/2;
+			centerY = (400 - level)/2;
+
+			// ctx.fillRect (599, centerY, 1, level);
+			
+			// console.log(level);
+			sphere.scale.x = level;
+			sphere.scale.y = level;
+			// sphere.scale.z = level;
+			sphere.geometry.dynamic = true;
+			sphere.geometry.__dirtyVertices = true;
+			
+			
+			// console.log( (timeByteData[0]/100) );
+			var t1 = 0,
+				t2 = 0,
+				t3 = 0,
+				t = 0;
+			for( var i = 0, l = sphere.geometry.vertices.length; i < l; ++i){
+				t1 = (timeByteData[i%timeByteData.length]/100);
+				t2 = freqByteData[i]/100;
+				//t3 = ( timeByteData[i] / freqByteData[i] );
+				
+				t = (t2 / t1);
+				
+				
+				sphere.geometry.vertices[i].position.x = geo1.vertices[i].position.x * t;
+				sphere.geometry.vertices[i].position.y = geo1.vertices[i].position.y * t;
+				sphere.geometry.vertices[i].position.z = geo1.vertices[i].position.z * t;
+			}
+			
+			// console.log(t2, freqByteData[0], freqByteData.length, l);
+			
+			if(level>0 && oneTime){
+				// console.log(freqByteData[0] / timeByteData[0]);
+				oneTime = false;
+			}
+			
+			renderer.render( scene, camera);
+			// requestAnimationFrame(render);
+
+		}
+
+		sound.connect({'o':analyser});
+		
+
+		freqByteData = new Uint8Array(analyser.frequencyBinCount);
+		timeByteData = new Uint8Array(analyser.frequencyBinCount);
+		
+		console.log(sound);
+	</script>
+	
+	
+</body>
+</html>
