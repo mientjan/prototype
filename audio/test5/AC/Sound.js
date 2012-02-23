@@ -1,4 +1,4 @@
-AC.Sound = function(url, options)
+AC.Sound = function(url, fn)
 {
 	this.o = this.ctx.createBufferSource();
 	
@@ -10,12 +10,12 @@ AC.Sound = function(url, options)
 	var self = this;
 	this.xhr.onload = function() 
 	{
-		
+		fn.call();
 		// var self2 = self;
 		self.ctx.decodeAudioData(this.response, function(buffer) {
 			self.o.buffer = buffer;
 		}, function(e){
-			console.log(e);
+			
 		});
 	}
 	
