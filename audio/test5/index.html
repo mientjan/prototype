@@ -44,21 +44,31 @@
 			view_angle = 45,
 			aspect = width / height,
 			near = 0.1,
-			far = 10000;
+			far = 10000,
+			mouseX = 0,
+			mouseY = 0;
+			
+		document.body.addEvent('mousemove', function(e){
+			mouseX = e.client.x/10;
+			mouseY = e.client.y/10;
+			
+			
+			camera.position.x += ( mouseX - camera.position.x ) * 0.05;
+			
+			camera.position.y += ( - mouseY - camera.position.y ) * 0.05;
+		});
 		
 		var container = $('container');
 		var renderer = new THREE.WebGLRenderer();
 		var camera = new THREE.PerspectiveCamera(
 			view_angle, aspect, near, far );
 		
-		console.log( camera );
+		console.log(camera);
 		
 		var scene = new THREE.Scene();
 		camera.position.z = 300;
 		renderer.setSize(width, height);
 		container.appendChild(renderer.domElement);
-		
-		console.log( camera );
 		
 		// de stoff
 		var sphereMaterial = new THREE.MeshLambertMaterial({ color: 0xCC0000 });
@@ -114,26 +124,31 @@
 	
 	<script>
 		var freqByteData,
-		timeByteData,
-		timeByteData,
-		analyser,
-		centerX,
-		centerY,
-		averageLevel,
-		level,
-		sum;
+			timeByteData,
+			timeByteData,
+			analyser,
+			centerX,
+			centerY,
+			averageLevel,
+			level,
+			sum;
 
 
-
+		$$('button')[0].set('html', 'Loading doctor_p-big_boss.mp3');
 		var a = new AC();
 
-		var sound = new AC.Sound('../doctor_p-big_boss.mp3', function(){ console.log('onComplete'); });
+		var sound = new AC.Sound('../doctor_p-big_boss.mp3', function(){ 
+		
+			$$('button')[0].set('html', 'Play doctor_p-big_boss.mp3');
+		});
 		var speakers = new AC.Speaker();
 		sound.connect(speakers);
 
 		analyser = a.ctx.createAnalyser();
 		var processor = a.ctx.createJavaScriptNode(2048, 1, 1);
-		
+
+
+
 		var oneTime = true;
 		processor.onaudioprocess = function(e){
 
@@ -148,21 +163,16 @@
 			}
 
 			averageLevel = sum / l;
-			// console.log(sum, averageLevel);
+			
 			level = averageLevel/100;
-
-			// ctx.fillStyle = "rgb("+Math.round(sum*Math.random())%255+","+Math.round(sum*Math.random())%255+","+Math.round(sum*Math.random())%255+")";  
-			// ctx.fillStyle = "rgb(0,0,0)";  
 
 			centerX = (600 - level)/2;
 			centerY = (400 - level)/2;
 
-			// ctx.fillRect (599, centerY, 1, level);
 			
-			// console.log(level);
 			sphere.scale.x = level;
 			sphere.scale.y = level;
-			// sphere.scale.z = level;
+			
 			sphere.geometry.dynamic = true;
 			sphere.geometry.__dirtyVertices = true;
 			
@@ -190,6 +200,8 @@
 				// console.log(freqByteData[0] / timeByteData[0]);
 				oneTime = false;
 			}
+			
+
 			
 			renderer.render( scene, camera);
 			// requestAnimationFrame(render);

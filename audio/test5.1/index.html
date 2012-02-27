@@ -54,14 +54,14 @@
 		var camera = new THREE.PerspectiveCamera(
 			view_angle, aspect, near, far );
 		
-		console.log( camera );
+//		console.log( camera );
 		
 		var scene = new THREE.Scene();
 		camera.position.z = 300;
 		renderer.setSize(width, height);
 		container.appendChild(renderer.domElement);
 		
-		console.log( camera );
+//		console.log( camera );
 		
 		// de stoff
 		var sphereMaterial = new THREE.MeshLambertMaterial({ color: 0xCC0000 });
@@ -206,7 +206,7 @@
 		freqByteData = new Uint8Array(analyser.frequencyBinCount);
 		timeByteData = new Uint8Array(analyser.frequencyBinCount);
 		
-		console.log(sound);
+//		console.log(sound);
 	</script>
 	
 	
