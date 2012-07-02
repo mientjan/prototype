@@ -7,7 +7,8 @@ var Proto = new Class({
 	
 	'initialize':function(ul){
 		this.ul = ul;
-		
+		this.directPage = location.hash.substr(1) || 0;
+		console.log(this.directPage);
 		this.getItem();
 	},
 	
@@ -45,6 +46,10 @@ var Proto = new Class({
 			this.img.inject(a);
 			a.inject(this.ul);
 			li.inject(this.ul, 'top');
+			
+			if( this.directPage == this.count ){
+				a.fireEvent('click');
+			}
 			
 			this.count++;
 			this.getItem();
