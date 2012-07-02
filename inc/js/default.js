@@ -8,7 +8,7 @@ var Proto = new Class({
 	'initialize':function(ul){
 		this.ul = ul;
 		this.directPage = location.hash.substr(1) || 0;
-		console.log(this.directPage);
+		
 		this.getItem();
 	},
 	
@@ -26,6 +26,7 @@ var Proto = new Class({
 			var a = new Element('a', {
 				'events':{
 					'click':function(e){
+						location.hash = currentCount;
 						$('content').empty();
 						this.getElements('! ! li a').removeClass('active');
 						this.addClass('active');
