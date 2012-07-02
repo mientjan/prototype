@@ -29,6 +29,8 @@ carb.canvas = function(w,h){
 	this.el = document.createElement('canvas');
 	this.el.width = w;
 	this.el.height = h;
+	this.width = w;
+	this.height = h;
 }
 
 carb.canvas.prototype.hide = function(){
@@ -68,6 +70,19 @@ carb.canvas.prototype.get = function(name){
 	return null;
 }
 
+carb.canvas.prototype.set = function(name,value){
+	if(name=='width'){
+		this.el.width = value;
+		this.width = value;
+	} else if( name=='height' ){
+		this.el.height = value;
+		this.height = value;
+		
+	}
+	
+	return this;
+}
+
 carb.shape = {};
 carb.shape.triangle = function(ctx,x,y,size){
 	ctx.beginPath();
@@ -91,4 +106,14 @@ carb.shape.piramid = function(ctx,x,y,size,rotate){
 	ctx.fill();
 	
 	ctx.restore(); 
+}
+
+/***
+ * extended Math functions
+ */
+
+clamp = function(x, mn, mx) {
+    if(x < mn) return mn;
+    if(x > mx) return mx-1;
+    return x;
 }
