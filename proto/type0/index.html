@@ -1,0 +1,67 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<title></title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<script src="../../inc/js/library.js"></script>
+		<script src="../../inc/js/dat.gui.min.js"></script>
+		<script src="carb.min.js"></script>
+		
+		<script>
+			window.addEvent('load',function(){
+				
+				var elem = document.createElement('canvas');
+				if( !!(elem.getContext && elem.getContext('2d')) ){
+					
+					new carb.load(['mediamonks-monks_COLOR.png', 'mediamonks-monks_NRM.png'], function(resources){
+
+						var target = new carb.canvas(500,500).inject(document.body),
+							map = new carb.canvas(500,500).inject(document.body).hide(),
+							source = new carb.canvas(500,500).inject(document.body).hide();
+
+						target.set('width', resources[0].width ).set('height', resources[0].height );
+						map.set('width', resources[0].width ).set('height', resources[0].height );
+						source.set('width', resources[0].width ).set('height', resources[0].height );
+
+						source.get('ctx').drawImage(resources[0], 0,0);
+						map.get('ctx').drawImage(resources[1], 0,0);
+						target.get('ctx').drawImage(resources[1], 0,0);
+
+						var normal = new carb.map.normal(target);
+						normal.setSource(source);
+						normal.setMap(map);
+
+						normal.shiny = 3;
+						normal.specularity = 4;
+						normal.distance = 100;
+						normal.draw(resources[0].width/2, resources[0].height/2, normal.distance);
+
+
+						target.el.onmousemove = function(e){
+							normal.draw(e.clientX+50, e.clientY+50, normal.distance);
+						};
+
+						var gui = new dat.GUI();
+						gui.add(normal,'shiny', 0,5);
+						gui.add(normal,'specularity', 0,5);
+						gui.add(normal,'distance', 0,500);
+
+					});
+
+				} else {
+					$(document.body).setStyle('background','#FFF');
+					$(document.body).set('text', 'your browser does not support canvas try chrome/firefox');
+				}
+				
+			});
+		</script>
+	</head>
+	<body style="background:#000;">
+
+	</body>
+</html>
