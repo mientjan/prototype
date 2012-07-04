@@ -49,7 +49,7 @@ var Proto = new Class({
 			this.img.inject(a);
 			a.inject(li);
 			li.inject(this.ul, 'top');
-			console.log(this.directPage === this.count);
+			
 			if( this.directPage === '' ){
 				clearInterval(this.delayCheck);
 				this.delayCheck = (function(){
