@@ -1,0 +1,97 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<title></title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<script src="../../inc/js/library.js"></script>
+		<script src="../../inc/js/dat.gui.min.js"></script>
+		<script src="Three.js"></script>
+		<script src="ShaderExtras.js"></script>
+
+		<script src="postprocessing/EffectComposer.js"></script>
+		<script src="postprocessing/ShaderPass.js"></script>
+		<script src="postprocessing/MaskPass.js"></script>
+		<script src="postprocessing/RenderPass.js"></script>
+		<script src="postprocessing/BloomPass.js"></script>
+		<script src="postprocessing/FilmPass.js"></script>
+		<script src="Detector.js"></script>
+		
+		<script id="fragmentShader" type="x-shader/x-fragment">
+
+			uniform float time;
+			uniform vec2 resolution;
+
+			uniform float fogDensity;
+			uniform vec3 fogColor;
+
+			uniform sampler2D texture1;
+			uniform sampler2D texture2;
+
+			varying vec2 vUv;
+
+			void main( void ) {
+
+				vec2 position = -1.0 + 2.0 * vUv;
+
+				vec4 noise = texture2D( texture1, vUv );
+				vec2 T1 = vUv + vec2( 1.5, -1.5 ) * time  *0.02;
+				vec2 T2 = vUv + vec2( -0.5, 2.0 ) * time * 0.01;
+
+				T1.x += noise.x * 2.0;
+				T1.y += noise.y * 2.0;
+				T2.x -= noise.y * 0.2;
+				T2.y += noise.z * 0.2;
+
+				float p = texture2D( texture1, T1 * 2.0 ).a;
+
+				vec4 color = texture2D( texture2, T2 * 2.0 );
+				vec4 temp = color * ( vec4( p, p, p, p ) * 2.0 ) + ( color * color - 0.1 );
+
+				if( temp.r > 1.0 ){ temp.bg += clamp( temp.r - 2.0, 0.0, 100.0 ); }
+				if( temp.g > 1.0 ){ temp.rb += temp.g - 1.0; }
+				if( temp.b > 1.0 ){ temp.rg += temp.b - 1.0; }
+
+				gl_FragColor = temp;
+
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				const float LOG2 = 1.442695;
+				float fogFactor = exp2( - fogDensity * fogDensity * depth * depth * LOG2 );
+				fogFactor = 1.0 - clamp( fogFactor, 0.0, 1.0 );
+
+				gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+
+			}
+
+		</script>
+
+		<script id="vertexShader" type="x-shader/x-vertex">
+
+			uniform vec2 uvScale;
+			varying vec2 vUv;
+
+			void main()
+			{
+
+				vUv = uvScale * uv;
+				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+				gl_Position = projectionMatrix * mvPosition;
+
+			}
+
+		</script>
+
+		<script>
+
+			function init(){container=document.getElementById("container");scene=new THREE.Scene;camera=new THREE.PerspectiveCamera(35,windowHalfX/windowHalfY,1,3e3);camera.position.z=1e3;scene.add(camera);var a=new dat.GUI;var b=a.addFolder("Camera");b.add(guiSettings,"autoRotate");b.add(camera.position,"x",0,1e3);b.add(camera.position,"y",0,1e3);b.add(camera.position,"z",0,1e3);uniforms={fogDensity:{type:"f",value:.45},fogColor:{type:"v3",value:new THREE.Vector3(0,0,0)},time:{type:"f",value:1},resolution:{type:"v2",value:new THREE.Vector2},uvScale:{type:"v2",value:new THREE.Vector2(3,1)},texture1:{type:"t",value:0,texture:THREE.ImageUtils.loadTexture("cloud.png")},texture2:{type:"t",value:1,texture:THREE.ImageUtils.loadTexture("lavatile.jpg")}};uniforms.texture1.texture.wrapS=uniforms.texture1.texture.wrapT=THREE.Repeat;uniforms.texture2.texture.wrapS=uniforms.texture2.texture.wrapT=THREE.Repeat;var c=.65;material=new THREE.ShaderMaterial({uniforms:uniforms,vertexShader:document.getElementById("vertexShader").textContent,fragmentShader:document.getElementById("fragmentShader").textContent});loader=new THREE.JSONLoader;loader.load("tedx_brain_v124.js",function(a){mesh=new THREE.Mesh(a,new THREE.MeshNormalMaterial);mesh.rotation.x=.3;mesh.flipSided=true;scene.add(mesh);camera.lookAt(mesh.position)});renderer=new THREE.WebGLRenderer({antialias:true});document.body.appendChild(renderer.domElement);renderer.autoClear=false;var d=new THREE.RenderPass(scene,camera);var e=new THREE.BloomPass(1.25);var f=new THREE.FilmPass(.35,.95,2048,false);var b=a.addFolder("Film Grain Greyscale");b.add(f.uniforms.grayscale,"value");f.uniforms.nIntensity.value=0;var g=a.addFolder("Film Grain Intensity");g.add(f.uniforms.nIntensity,"value",0,1);var h=a.addFolder("Film Bloom");h.add(e,"enabled");h.add(e.screenUniforms.opacity,"value",0,10);f.renderToScreen=true;composer=new THREE.EffectComposer(renderer);composer.addPass(d);composer.addPass(e);composer.addPass(f);onWindowResize();window.addEventListener("resize",onWindowResize,false)}function onWindowResize(a){uniforms.resolution.value.x=window.innerWidth;uniforms.resolution.value.y=window.innerHeight;renderer.setSize(window.innerWidth,window.innerHeight);camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();composer.reset()}function animate(){requestAnimationFrame(animate);render()}function render(){camera.lookAt(scene.position);var a=Date.now()*.001;if(guiSettings.autoRotate){camera.position.x=Math.cos(a)*1e3;camera.position.y=Math.sin(a)*1e3}renderer.clear();composer.render(.01)}if(!Detector.webgl)Detector.addGetWebGLMessage();var container,stats;var clock=new THREE.Clock;var camera,scene,renderer,composer,loader;var uniforms,material,mesh;var mouseX=0,mouseY=0,lat=0,lon=0,phy=0,theta=0;var windowHalfX=window.innerWidth/2;var windowHalfY=window.innerHeight/2;var guiSettings={autoRotate:true};window.addEvent("load",function(a){init();animate()})
+			
+		</script>
+	</head>
+	<body style="background-color: #000000;">
+
+	</body>
+</html>
