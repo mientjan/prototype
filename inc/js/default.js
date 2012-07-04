@@ -7,8 +7,10 @@ var Proto = new Class({
 	
 	'initialize':function(ul){
 		this.ul = ul;
-		this.directPage = location.hash.substr(1) || 0;
-		
+		this.directPage = location.hash.substr(1);
+		if(this.directPage !== ''){
+			this.directPage = parseInt(this.directPage);
+		}
 		this.getItem();
 	},
 	
@@ -45,10 +47,15 @@ var Proto = new Class({
 			var li = new Element('li');
 			
 			this.img.inject(a);
-			a.inject(this.ul);
+			a.inject(li);
 			li.inject(this.ul, 'top');
-			
-			if( this.directPage == this.count ){
+			console.log(this.directPage === this.count);
+			if( this.directPage === '' ){
+				clearInterval(this.delayCheck);
+				this.delayCheck = (function(){
+					a.fireEvent('click');
+				}).delay(200, this);
+			} else if( this.directPage === this.count){
 				a.fireEvent('click');
 			}
 			
