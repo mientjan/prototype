@@ -1,0 +1,23 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<title></title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<script src="../../inc/js/support.js"></script>
+		<script src="../../inc/js/library.js"></script>
+		<script src="../../inc/js/dat.gui.min.js"></script>
+		
+		<script>
+			function init(){navigator.webkitGetUserMedia({video:true,audio:true},onSuccess,onError)}function onSuccess(a){var b=document.getElementById("video");b.autoplay=true;b.src=window.webkitURL.createObjectURL(a)}function onError(a){alert(a)}window.addEvent("domready",function(){if(Support(["chrome,21.0"])){init();var a={blur:{unit:"px",range:[0,10]},grayscale:{unit:"",range:[0,1]},sepia:{unit:"%",range:[0,100]},"hue-rotate":{unit:"deg",range:[0,360]},contrast:{unit:"",range:[0,10]},saturate:{unit:"",range:[0,10]}};var b={blur:0,grayscale:0,sepia:52,"hue-rotate":176,contrast:1,saturate:6};var c=new dat.GUI;Object.each(a,function(d,e){var f=c.add(b,e,d.range[0],d.range[1]);f.onChange(function(c){var d=[];Object.each(a,function(a,c){d.push(c+"("+b[c]+""+(a.unit!=""?a.unit:"")+")")});$("video").style.webkitFilter=d.join(" ")+""})});var d=[];Object.each(a,function(a,c){d.push(c+"("+b[c]+""+(a.unit!=""?a.unit:"")+")")});$("video").style.webkitFilter=d.join(" ")+""}})
+		</script>
+		
+	</head>
+	<body style="background-color: #000000;">
+		<video id="video" width="500" height="500" controls></video>
+	</body>
+</html>
