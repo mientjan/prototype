@@ -1,0 +1,154 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<title></title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<link rel="stylesheet" type="text/css" href="../../inc/css/bootstrap.css" />
+		<link rel="stylesheet" type="text/css" href="screen.css" />
+
+		<script src="../../inc/js/support.js"></script>
+		<script src="../../inc/js/library.js"></script>
+		<script>
+			
+			var posMatrix = {};
+			
+			var Primitive = {}
+			Primitive.Shape = function(){}
+			Primitive.Shape.prototype.bind = function(el){
+				el.appendChild(this.el);
+				return this;
+			}
+			Primitive.Shape.prototype.translate3d = function(x,y,z){
+				
+				this._translate3d = arguments;
+				this.el.style.webkitTransform = ' translate3d('+Array.join(arguments,'px,')+'px)';
+				return this;
+			}
+			
+			Primitive.Shape.prototype.size = function(x){
+				
+				
+				this.el.style.webkitTransform += ' resize('+x+'px)';
+				return this;
+			}
+			
+			Primitive.Shape.prototype.destroy = function(x){
+				this.el.destroy();
+				return this;
+			}
+			
+			Primitive.Cube = function(){
+				this.el = document.createElement('div');
+				this.el.className = 'cube';
+				var el = null;
+				for(var i=0;i<6;i++){
+					el = document.createElement('div');
+					el.className = 'face';
+					this.el.appendChild(el);
+				}
+				
+			};
+			
+			Primitive.Cube.prototype = Primitive.Shape.prototype;
+			
+			
+			var settings = {
+				cubes:100,
+				now:0,
+				elements:[],
+				maxw:0,
+				maxh:0,
+				minw:0,
+				minh:0
+			};
+			
+			var rnd = function(m){
+				return Math.round(m*Math.random());
+			}
+			
+			var cubinator = function(){
+				var stage = document.getElement('.stage'),
+					pointer = Math.round(Math.random()*2),
+					pos = settings.elements.length-1,
+					p = [0,0,0],
+					cube = new Primitive.Cube();
+				
+				var size = Math.round(Math.random()*1);
+				if(size==0){
+					size = -50;
+				} else {
+					size = 50;
+				}
+				
+//				stage.style.webkitTransform = ''
+				
+//				console.log(50*(Math.round(Math.random()*2)-1));
+				if(pos>=0){
+//					console.log(settings.elements[pos])
+					p = Array.clone(settings.elements[pos]._translate3d);
+					cube.bind(stage).translate3d(p[0],p[1],p[2]);
+					p[pointer] = p[pointer] + size;
+					
+				}
+				
+				
+				if( pos < settings.cubes ){
+					(function(){
+						var hash = p[0]+'|'+p[1]+'|'+p[2];
+//						console.log('background-color', 'rgb('+rnd(255)+','+rnd(255)+','+rnd(255)+',1)');
+//						console.log(cube.el.getElements('.face'));
+						cube.el.getElements('.face').setStyle('background-color', 'rgba('+rnd(255)+','+rnd(255)+','+rnd(255)+',1)');
+						
+						if(posMatrix[hash]){
+							posMatrix[hash].destroy();
+						}
+						
+						settings.elements.push(
+							cube.translate3d(p[0],p[1],p[2])
+						);
+							
+						posMatrix[hash] = cube;
+						settings.maxw = Math.max(settings.maxw, p[0]);
+						settings.maxh = Math.max(settings.maxh, p[1]);
+						
+						settings.minw = Math.min(settings.minw, p[0]);
+						settings.minh = Math.min(settings.minh, p[1]);
+						
+						stage.style.width = Math.abs( settings.minw)+settings.maxw + 'px';
+						stage.style.height = Math.abs( settings.minh)+settings.maxh + 'px';
+						stage.style.marginTop = -(Math.abs( settings.minw)+settings.maxw)/2 + 'px';
+						stage.style.marginLeft = -(Math.abs( settings.minw)+settings.maxw)/2 + 'px';
+//						stage.style.height = settings.minh + 'px';
+					}).delay(50);
+					
+					(function(){
+						cubinator();
+					}).delay(1050);
+				}
+				
+				
+			}
+			
+			window.addEvent('domready', function(e){
+//				$('content').setStyle('display','none');
+				if( Support(['chrome,18.0','safari,5']) ){
+					$('content').setStyle('display','block');
+					return;
+				}
+				
+				cubinator();
+			});
+		</script>
+
+	</head>
+	<body style="background-color: #000000;">
+		<div class="stage">
+			
+		</div>
+
+	</body>
+</html>
